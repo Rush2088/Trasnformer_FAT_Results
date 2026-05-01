@@ -65,7 +65,18 @@ export default function App() {
   const handleQAConfirmed = (data) => { confirmExtract(data); setQaData(null) }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F1F5F9' }}>
+    <div className="min-h-screen" style={{
+        backgroundColor: '#DADADA',
+        backgroundImage: `repeating-linear-gradient(
+          45deg,
+          transparent 0px, transparent 4px,
+          rgba(0,0,0,0.06) 4px, rgba(0,0,0,0.06) 5px
+        ), repeating-linear-gradient(
+          -45deg,
+          transparent 0px, transparent 9px,
+          rgba(0,0,0,0.025) 9px, rgba(0,0,0,0.025) 10px
+        )`
+      }}>
       <TopBar step={step} onReset={reset} />
 
       <main className="pb-12">

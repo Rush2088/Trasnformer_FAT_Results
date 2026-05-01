@@ -10,15 +10,15 @@ export default function TopBar({ step, onReset }) {
 
   return (
     <header className="no-print sticky top-0 z-50 flex items-center justify-between px-6 py-3"
-      style={{ background: '#EFF6FF', borderBottom: '1px solid #BFDBFE' }}>
+      style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #E2E8F0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
 
       {/* Brand */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white"
-          style={{ background: '#2563EB' }}>⚡</div>
+          style={{ background: '#861F41' }}>⚡</div>
         <div>
-          <span className="font-bold text-sm tracking-wide" style={{ color: '#1E3A5F' }}>TX FAT</span>
-          <span className="text-xs ml-2 hidden sm:inline" style={{ color: '#64A0D4' }}>
+          <span className="font-bold text-sm tracking-wide" style={{ color: '#1A1A2E' }}>TX FAT</span>
+          <span className="text-xs ml-2 hidden sm:inline" style={{ color: '#94A3B8' }}>
             3-Winding Transformer
           </span>
         </div>
@@ -30,18 +30,18 @@ export default function TopBar({ step, onReset }) {
           <div key={i} className="flex items-center">
             <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
               style={i === step
-                ? { background: '#2563EB', color: 'white', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }
+                ? { background: '#861F41', color: 'white', boxShadow: '0 2px 8px rgba(134,31,65,0.35)' }
                 : i < step
-                  ? { background: '#DCFCE7', color: '#15803D', border: '1px solid #86EFAC' }
-                  : { background: 'white', color: '#94A3B8', border: '1px solid #E2E8F0' }}>
+                  ? { background: '#FCE7EF', color: '#861F41', border: '1px solid #F9A8C4' }
+                  : { background: '#F8FAFC', color: '#94A3B8', border: '1px solid #E2E8F0' }}>
               <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{ background: i === step ? 'rgba(255,255,255,0.25)' : i < step ? '#86EFAC' : '#F1F5F9', color: i === step ? 'white' : i < step ? '#15803D' : '#94A3B8' }}>
+                style={{ background: i === step ? 'rgba(255,255,255,0.25)' : i < step ? '#F9A8C4' : '#E2E8F0', color: i === step ? 'white' : i < step ? '#861F41' : '#94A3B8' }}>
                 {i < step ? '✓' : i + 1}
               </span>
               {label}
             </div>
             {i < 2 && (
-              <div className="w-5 h-px mx-1" style={{ background: i < step ? '#86EFAC' : '#CBD5E1' }} />
+              <div className="w-5 h-px mx-1" style={{ background: i < step ? '#F9A8C4' : '#CBD5E1' }} />
             )}
           </div>
         ))}
