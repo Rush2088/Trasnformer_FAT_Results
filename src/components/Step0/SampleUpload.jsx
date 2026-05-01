@@ -29,12 +29,18 @@ export default function SampleUpload({ onDetected }) {
   }
 
   const handleSkip = () => {
-    // Load saved config from localStorage if available
     const saved = localStorage.getItem('fat_config')
-    if (saved) {
-      onDetected({ params: JSON.parse(saved), fromCache: true })
-    } else {
-      setError('No saved config found. Upload sample PDFs to auto-detect parameters.')
+    if (!saved) {
+      setError('No saved config found. Upload sample PDFs to auto-detect parameters first.')
+      return
+    }
+    try {
+      const cfg = JSON.parse(saved)
+      // Support both old format (plain array) and new format (full config object)
+      const params = Array.isArray(cfg) ? cfg : (cfg.parameters || cfg)
+      onDetected({ params, sample_filenames: [], fromCache: true })
+    } catch {
+      setError('Saved config is invalid. Please re-run auto-detection.')
     }
   }
 
@@ -84,7 +90,7 @@ export default function SampleUpload({ onDetected }) {
       </div>
 
       <p className="mt-3 text-xs text-gray-400 text-center">
-        Powered by HF Serverless Inference · Llama 3.2
+        Powered by Claude AI · Parameter detection saves automatically after Step 0
       </p>
     </div>
   )

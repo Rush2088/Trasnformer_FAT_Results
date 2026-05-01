@@ -42,8 +42,8 @@ export default function ParamReviewTable({ detected, onConfirmed }) {
       const config = { ...batchInfo, parameters: params }
       // Save to backend
       await apiPost(`/v1/config/${getSessionId()}`, { config })
-      // Also save locally for future sessions
-      localStorage.setItem('fat_config', JSON.stringify(params))
+      // Save full config locally so "Use saved config" works next time
+      localStorage.setItem('fat_config', JSON.stringify({ ...batchInfo, parameters: params }))
       onConfirmed(config)
     } catch (e) {
       setError(e.message)
