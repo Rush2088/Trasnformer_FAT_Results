@@ -6,6 +6,7 @@ export default function SampleUpload({ onDetected }) {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState(null)
   const inputRef              = useRef()
+  const configRef             = useRef()
 
   const handleFiles = (e) => {
     const selected = Array.from(e.target.files).filter(f => f.name.endsWith('.pdf')).slice(0, 3)
@@ -31,17 +32,35 @@ export default function SampleUpload({ onDetected }) {
   const handleSkip = () => {
     const saved = localStorage.getItem('fat_config')
     if (!saved) {
-      setError('No saved config found. Upload sample PDFs to auto-detect parameters first.')
+      setError('No saved config found in this browser. Upload a config JSON file or run auto-detection.')
       return
     }
     try {
       const cfg = JSON.parse(saved)
-      // Support both old format (plain array) and new format (full config object)
       const params = Array.isArray(cfg) ? cfg : (cfg.parameters || cfg)
       onDetected({ params, sample_filenames: [], fromCache: true })
     } catch {
       setError('Saved config is invalid. Please re-run auto-detection.')
     }
+  }
+
+  const handleConfigUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const cfg    = JSON.parse(ev.target.result)
+        const params = Array.isArray(cfg) ? cfg : (cfg.parameters || cfg)
+        if (!params?.length) throw new Error('No parameters found in config file.')
+        // Persist to localStorage so future sessions can use it
+        localStorage.setItem('fat_config', JSON.stringify(cfg))
+        onDetected({ params, sample_filenames: [], fromCache: true })
+      } catch (err) {
+        setError(`Invalid config file: ${err.message}`)
+      }
+    }
+    reader.readAsText(file)
   }
 
   return (
@@ -89,8 +108,29 @@ export default function SampleUpload({ onDetected }) {
         </button>
       </div>
 
+      {/* Upload a previously saved config JSON */}
+      <div className="mt-3 flex items-center gap-2">
+        <div className="flex-1 border-t border-gray-200" />
+        <span className="text-xs text-gray-400 whitespace-nowrap">or upload a saved config file</span>
+        <div className="flex-1 border-t border-gray-200" />
+      </div>
+      <div className="mt-3 text-center">
+        <input
+          ref={configRef}
+          type="file"
+          accept=".json"
+          className="hidden"
+          onChange={handleConfigUpload}
+        />
+        <button
+          onClick={() => configRef.current.click()}
+          className="text-sm text-gray-500 border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors">
+          📂 Upload config JSON
+        </button>
+      </div>
+
       <p className="mt-3 text-xs text-gray-400 text-center">
-        Powered by Claude AI · Parameter detection saves automatically after Step 0
+        Powered by Claude AI · Config saves automatically after Step 0
       </p>
     </div>
   )

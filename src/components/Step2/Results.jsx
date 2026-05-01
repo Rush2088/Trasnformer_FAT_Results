@@ -25,7 +25,7 @@ function DownloadBtn({ onClick, label, icon = '⬇', secondary = false }) {
   )
 }
 
-export default function Results({ onNormalised, qaData }) {
+export default function Results({ onNormalised, qaData, onReset }) {
   const [pfChoice,  setPfChoice]  = useState(null)   // null | 'yes' | 'no'
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState(null)
@@ -131,6 +131,11 @@ export default function Results({ onNormalised, qaData }) {
           <div className="flex flex-col gap-3 items-center">
             <DownloadBtn onClick={downloadExcel}  label="Download FAT Results Excel" />
             <DownloadBtn onClick={downloadConfig} label="Download config for future batches" secondary />
+            <button
+              onClick={onReset}
+              className="mt-2 text-sm text-blue-600 hover:underline">
+              ↺ Upload new batch
+            </button>
           </div>
         </div>
       </div>

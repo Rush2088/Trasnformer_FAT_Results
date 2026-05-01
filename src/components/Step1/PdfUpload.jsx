@@ -64,21 +64,12 @@ export default function PdfUpload({ config, onExtracted }) {
     done:       'Extraction complete!',
   }
 
-  const expectedCount = config
-    ? config.range_hi - config.range_lo + 1
-    : null
-
   return (
     <div className="max-w-2xl mx-auto mt-8 px-4">
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="text-lg font-bold text-gray-800 mb-1">Step 1 — Upload &amp; Extract</h2>
         <p className="text-sm text-gray-500 mb-1">
-          Upload all FAT report PDFs for this batch.
-          {expectedCount && (
-            <span className="ml-1 text-blue-600 font-medium">
-              Expecting {expectedCount} files (#{config.range_lo}–#{config.range_hi}).
-            </span>
-          )}
+          Upload all FAT report PDFs for this batch. Unit IDs will be read automatically from each PDF.
         </p>
         <p className="text-xs text-gray-400 mb-5">
           Files are uploaded in batches of {CHUNK} — no timeout issues with large batches.

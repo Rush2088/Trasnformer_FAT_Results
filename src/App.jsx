@@ -100,6 +100,7 @@ export default function App() {
           <Results
             qaData={qa}
             onNormalised={confirmNormalise}
+            onReset={reset}
           />
         )}
 
