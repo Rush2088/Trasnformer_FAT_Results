@@ -1,0 +1,13 @@
+/* Transformer FAT — global overrides */
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Print: hide top bar */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
