@@ -40,7 +40,28 @@ export default function App() {
   const handleConfigConfirmed  = (cfg)  => { confirmConfig(cfg); setDetected(null) }
 
   // ── Step 1 handlers ──────────────────────────────────────────────────────
-  const handleExtracted  = (data) => setQaData(data)
+  // Transform backend shape → QAFlagsTable shape
+  // Backend: { total_units, available, excluded[], qa_flags: {serial: [flags]} }
+  // Table:   { total, extracted, failed, results: [{serial, status, flags[]}] }
+  const handleExtracted = (raw) => {
+    const qaFlags    = raw.qa_flags || {}
+    const excludedSet = new Set(raw.excluded || [])
+    const results = Object.entries(qaFlags).map(([serial, flags]) => {
+      const flagList  = Array.isArray(flags) ? flags : []
+      const isExcl    = excludedSet.has(serial)
+      return {
+        serial,
+        status: isExcl ? 'failed' : (flagList.length > 0 ? 'warning' : 'ok'),
+        flags:  flagList,
+      }
+    })
+    setQaData({
+      total:     raw.total_units  || results.length,
+      extracted: raw.available    || results.length,
+      failed:    (raw.excluded || []).length,
+      results,
+    })
+  }
   const handleQAConfirmed = (data) => { confirmExtract(data); setQaData(null) }
 
   return (
