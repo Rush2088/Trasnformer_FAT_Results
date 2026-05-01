@@ -17,7 +17,7 @@ export function getSessionId() {
 export function resetSession() {
   const id = crypto.randomUUID()
   localStorage.setItem('fat_session_id', id)
-  localStorage.removeItem('fat_config')
+  // Note: fat_config is intentionally kept so "Use saved config" works across batches
   return id
 }
 
