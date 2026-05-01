@@ -29,7 +29,7 @@ export default function ParamReviewTable({ detected, onConfirmed }) {
   const [params, setParams]   = useState(initial)
   const [saving, setSaving]   = useState(false)
   const [error, setError]     = useState(null)
-  const [batchInfo, setBatch] = useState({ prefix: '', range_lo: 1, range_hi: 50, rated_mva: 4.6, split_mva: 2.3, pdf_naming: 'Routine Test Report {prefix}-{serial:04d}.pdf' })
+  const [batchInfo, setBatch] = useState({ rated_mva: 4.6, split_mva: 2.3 })
 
   const removeParam = (i) => setParams(ps => ps.filter((_, idx) => idx !== i))
 
@@ -64,21 +64,21 @@ export default function ParamReviewTable({ detected, onConfirmed }) {
         </p>
 
         {/* Batch info */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5 p-4 bg-blue-50 rounded-lg">
+        <div className="grid grid-cols-2 gap-3 mb-5 p-4 bg-blue-50 rounded-lg">
+          <p className="col-span-2 text-xs text-gray-500 -mb-1">
+            Unit IDs are read automatically from each PDF. Files that don't contain a recognisable serial will use the filename as the identifier.
+          </p>
           {[
-            ['Prefix',    'prefix',    'text',   'e.g. B456'],
-            ['From #',    'range_lo',  'number', '1'],
-            ['To #',      'range_hi',  'number', '50'],
-            ['Rated MVA', 'rated_mva', 'number', '4.6'],
-            ['Split MVA', 'split_mva', 'number', '2.3'],
-          ].map(([label, key, type, placeholder]) => (
+            ['Rated MVA', 'rated_mva', '4.6'],
+            ['Split MVA', 'split_mva', '2.3'],
+          ].map(([label, key, placeholder]) => (
             <label key={key} className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-gray-600">{label}</span>
               <input
-                type={type}
+                type="number"
                 value={batchInfo[key]}
                 placeholder={placeholder}
-                onChange={e => setBatch(b => ({ ...b, [key]: type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value }))}
+                onChange={e => setBatch(b => ({ ...b, [key]: parseFloat(e.target.value) || 0 }))}
                 className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-400"
               />
             </label>
