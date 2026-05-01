@@ -39,14 +39,14 @@ export default function PdfUpload({ config, onExtracted }) {
         const batch = files.slice(i, i + CHUNK)
         const form  = new FormData()
         batch.forEach(f => form.append('files', f))
-        await apiPostForm(`/api/extract/${sid}/upload`, form)
+        await apiPostForm(`/v1/extract/${sid}/upload`, form)
         setProgress(Math.round(Math.min(i + CHUNK, files.length) / files.length * 80))
       }
 
       // ── Phase 2: run extraction ──────────────────────────────────────────
       setPhase('extracting')
       setProgress(85)
-      const qaData = await apiPost(`/api/extract/${sid}/run`, {})
+      const qaData = await apiPost(`/v1/extract/${sid}/run`, {})
       setProgress(100)
       setPhase('done')
       onExtracted(qaData)

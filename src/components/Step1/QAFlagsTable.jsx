@@ -41,7 +41,7 @@ export default function QAFlagsTable({ qaData, onConfirmed }) {
     setSaving(true); setError(null)
     try {
       const sid = getSessionId()
-      await apiPost(`/api/extract/${sid}/confirm`, { excluded: [...excluded] })
+      await apiPost(`/v1/extract/${sid}/confirm`, { excluded: [...excluded] })
       onConfirmed(qaData)
     } catch (e) {
       setError(e.message)

@@ -19,7 +19,7 @@ export default function SampleUpload({ onDetected }) {
     try {
       const form = new FormData()
       files.forEach(f => form.append('files', f))
-      const data = await apiPostForm('/api/detect', form)
+      const data = await apiPostForm('/v1/detect', form)
       onDetected(data)
     } catch (e) {
       setError(e.message)

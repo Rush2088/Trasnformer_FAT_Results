@@ -40,7 +40,7 @@ export default function Results({ onNormalised, qaData }) {
     setLoading(true); setError(null); setStarted(true)
     try {
       const sid  = getSessionId()
-      const data = await apiPost(`/api/normalise/${sid}`, {})
+      const data = await apiPost(`/v1/normalise/${sid}`, {})
       setResults(data)
       onNormalised(data)
     } catch (e) {
@@ -54,7 +54,7 @@ export default function Results({ onNormalised, qaData }) {
   const handleDownload = async () => {
     const sid = getSessionId()
     // Open download in new tab — browser handles the file save
-    window.open(`${import.meta.env.VITE_API_BASE || 'https://rashmil888-tx-fat-reports.hf.space'}/api/download/${sid}`, '_blank')
+    window.open(`${import.meta.env.VITE_API_BASE || 'https://rashmil888-tx-fat-reports.hf.space'}/v1/download/${sid}`, '_blank')
   }
 
   if (!started) {

@@ -55,5 +55,5 @@ export async function apiPostForm(path, formData) {
 
 // Keep the Space warm — ping every 25 minutes while the tab is open
 export function startKeepAlive() {
-  setInterval(() => fetch(`${API_BASE}/api/health`).catch(() => {}), 25 * 60 * 1000)
+  setInterval(() => fetch(`${API_BASE}/health`).catch(() => {}), 25 * 60 * 1000)
 }
