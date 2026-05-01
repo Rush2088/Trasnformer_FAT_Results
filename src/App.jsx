@@ -65,7 +65,7 @@ export default function App() {
   const handleQAConfirmed = (data) => { confirmExtract(data); setQaData(null) }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F6FA' }}>
+    <div className="min-h-screen" style={{ background: '#F1F5F9' }}>
       <TopBar step={step} onReset={reset} />
 
       <main className="pb-12">

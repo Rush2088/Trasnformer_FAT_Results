@@ -1,138 +1,129 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { apiPost, apiPostForm, getSessionId } from '../../utils/api'
 
-const CHUNK = 10  // PDFs per upload batch
+const CHUNK = 10
 
 export default function PdfUpload({ config, onExtracted }) {
   const [files,    setFiles]    = useState([])
-  const [progress, setProgress] = useState(0)   // 0-100 upload
-  const [phase,    setPhase]    = useState('idle')  // idle|uploading|extracting|done
+  const [progress, setProgress] = useState(0)
+  const [phase,    setPhase]    = useState('idle')
   const [error,    setError]    = useState(null)
   const inputRef = useRef()
 
   const handleFiles = (e) => {
     const selected = Array.from(e.target.files).filter(f => f.name.endsWith('.pdf'))
-    setFiles(selected)
-    setError(null)
-    setProgress(0)
-    setPhase('idle')
+    setFiles(selected); setError(null); setProgress(0); setPhase('idle')
   }
 
   const handleDrop = (e) => {
     e.preventDefault()
     const dropped = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.pdf'))
-    setFiles(dropped)
-    setError(null)
-    setProgress(0)
-    setPhase('idle')
+    setFiles(dropped); setError(null); setProgress(0); setPhase('idle')
   }
 
   const handleRun = async () => {
-    if (!files.length) return
+    if (!files.length || phase !== 'idle') return
     setError(null)
     const sid = getSessionId()
-
     try {
-      // ── Phase 1: chunked upload ──────────────────────────────────────────
       setPhase('uploading')
       for (let i = 0; i < files.length; i += CHUNK) {
-        const batch = files.slice(i, i + CHUNK)
-        const form  = new FormData()
-        batch.forEach(f => form.append('files', f))
+        const form = new FormData()
+        files.slice(i, i + CHUNK).forEach(f => form.append('files', f))
         await apiPostForm(`/v1/extract/${sid}/upload`, form)
         setProgress(Math.round(Math.min(i + CHUNK, files.length) / files.length * 80))
       }
-
-      // ── Phase 2: run extraction ──────────────────────────────────────────
-      setPhase('extracting')
-      setProgress(85)
+      setPhase('extracting'); setProgress(85)
       const qaData = await apiPost(`/v1/extract/${sid}/run`, {})
-      setProgress(100)
-      setPhase('done')
+      setProgress(100); setPhase('done')
       onExtracted(qaData)
-
     } catch (e) {
-      setError(e.message)
-      setPhase('idle')
+      setError(e.message); setPhase('idle')
     }
   }
 
-  const phaseLabel = {
-    idle:       files.length ? `${files.length} file${files.length === 1 ? '' : 's'} selected` : 'No files selected',
-    uploading:  `Uploading… ${progress}%`,
-    extracting: 'Extracting data from PDFs…',
-    done:       'Extraction complete!',
-  }
+  // Enter key → upload & extract
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Enter') handleRun() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [files, phase])
+
+  const busy = phase === 'uploading' || phase === 'extracting'
+  const btnLabel = phase === 'idle' ? 'Upload & Extract' : phase === 'uploading' ? `Uploading… ${progress}%` : phase === 'extracting' ? 'Extracting data…' : '✓ Done'
 
   return (
-    <div className="max-w-2xl mx-auto mt-8 px-4">
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-lg font-bold text-gray-800 mb-1">Step 1 — Upload &amp; Extract</h2>
-        <p className="text-sm text-gray-500 mb-1">
-          Upload all FAT report PDFs for this batch. Unit IDs will be read automatically from each PDF.
-        </p>
-        <p className="text-xs text-gray-400 mb-5">
-          Files are uploaded in batches of {CHUNK} — no timeout issues with large batches.
-        </p>
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="w-full max-w-xl">
+        <div className="bg-white rounded-2xl shadow-lg p-8" style={{ border: '1px solid #E2E8F0' }}>
 
-        {/* Drop zone */}
-        <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-            ${files.length ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
-          onClick={() => inputRef.current.click()}
-          onDragOver={e => e.preventDefault()}
-          onDrop={handleDrop}>
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".pdf"
-            multiple
-            className="hidden"
-            onChange={handleFiles}
-          />
-          <div className="text-3xl mb-2">{files.length ? '📂' : '📁'}</div>
-          <p className="text-sm font-medium text-gray-600">{phaseLabel[phase]}</p>
-          {files.length > 0 && phase === 'idle' && (
-            <p className="text-xs text-gray-400 mt-1">Click to change selection</p>
-          )}
-        </div>
-
-        {/* Progress bar */}
-        {phase !== 'idle' && (
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>{phase === 'uploading' ? 'Uploading' : phase === 'extracting' ? 'Extracting' : 'Done'}</span>
-              <span>{progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${progress}%`,
-                  background: phase === 'done' ? '#375623' : '#1F497D'
-                }}
-              />
-            </div>
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-slate-900">Upload FAT Reports</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              Upload all FAT report PDFs for this batch.
+            </p>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Unit IDs are read automatically from each PDF — no renaming needed.
+            </p>
           </div>
-        )}
 
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {/* Drop zone */}
+          <div
+            onClick={() => inputRef.current.click()}
+            onDragOver={e => e.preventDefault()}
+            onDrop={handleDrop}
+            className="cursor-pointer rounded-xl p-10 text-center transition-all"
+            style={{
+              border: `2px dashed ${files.length ? '#3B82F6' : '#CBD5E1'}`,
+              background: files.length ? '#EFF6FF' : '#F8FAFC'
+            }}>
+            <input ref={inputRef} type="file" accept=".pdf" multiple className="hidden" onChange={handleFiles} />
+            <div className="text-4xl mb-3">{files.length ? '📂' : '📁'}</div>
+            {files.length ? (
+              <div>
+                <p className="text-sm font-semibold text-blue-700">{files.length} PDF{files.length > 1 ? 's' : ''} selected</p>
+                <p className="text-xs text-blue-400 mt-1">Click to change selection</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm font-medium text-slate-600">Drag & drop all batch PDFs here</p>
+                <p className="text-xs text-slate-400 mt-1">or click to browse · uploaded in batches of {CHUNK}</p>
+              </div>
+            )}
+          </div>
 
-        <div className="mt-5 flex justify-between items-center">
-          <p className="text-xs text-gray-400">
-            {files.length
-              ? `${files.length} PDF${files.length === 1 ? '' : 's'} ready`
-              : 'Drag & drop or click to select PDFs'}
-          </p>
+          {/* Progress bar */}
+          {phase !== 'idle' && (
+            <div className="mt-5">
+              <div className="flex justify-between text-xs text-slate-500 mb-1.5">
+                <span>{phase === 'uploading' ? 'Uploading files' : phase === 'extracting' ? 'Extracting data from PDFs' : 'Complete'}</span>
+                <span className="font-mono">{progress}%</span>
+              </div>
+              <div className="w-full rounded-full h-2" style={{ background: '#E2E8F0' }}>
+                <div className="h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%`, background: phase === 'done' ? '#16A34A' : '#3B82F6' }} />
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-4 px-4 py-3 rounded-lg text-sm text-red-700" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
+              {error}
+            </div>
+          )}
+
           <button
             onClick={handleRun}
-            disabled={!files.length || phase === 'uploading' || phase === 'extracting'}
-            className="px-6 py-2 rounded-lg text-sm font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
-            style={{ background: (files.length && phase === 'idle') ? '#1F497D' : undefined }}>
-            {phase === 'idle' ? '⚡ Upload & Extract' :
-             phase === 'uploading' ? 'Uploading…' :
-             phase === 'extracting' ? 'Extracting…' : '✓ Done'}
+            disabled={!files.length || busy}
+            className="w-full mt-5 py-3 rounded-xl text-sm font-semibold text-white transition-all"
+            style={{ background: files.length && !busy ? '#2563EB' : '#CBD5E1', cursor: files.length && !busy ? 'pointer' : 'not-allowed' }}>
+            ⚡ {btnLabel}
+            {files.length && !busy ? <span className="ml-2 text-xs opacity-70">↵ Enter</span> : null}
           </button>
+
+          <p className="mt-4 text-center text-xs text-slate-400">
+            Large batches are split automatically — no timeout issues
+          </p>
         </div>
       </div>
     </div>

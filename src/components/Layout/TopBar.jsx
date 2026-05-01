@@ -1,41 +1,51 @@
 export default function TopBar({ step, onReset }) {
-  const steps = ['0  Config', '1  Extract', '2  Results']
+  const steps = ['Config', 'Extract', 'Results']
 
   return (
-    <div className="no-print flex items-center justify-between px-4 py-2 shadow-md"
-         style={{ background: '#1F497D' }}>
+    <header className="no-print sticky top-0 z-50 flex items-center justify-between px-6 py-3"
+      style={{ background: '#0F172A', borderBottom: '1px solid #1E293B' }}>
 
       {/* Brand */}
       <div className="flex items-center gap-3">
-        <span className="text-white font-bold text-sm tracking-widest">⚡ TX FAT</span>
-        <span className="text-blue-200 text-xs hidden sm:inline">
-          3-Winding Transformer FAT Results
-        </span>
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm"
+          style={{ background: '#3B82F6' }}>⚡</div>
+        <div>
+          <span className="text-white font-bold text-sm tracking-wide">TX FAT</span>
+          <span className="text-slate-400 text-xs ml-2 hidden sm:inline">3-Winding Transformer</span>
+        </div>
       </div>
 
       {/* Step indicator */}
       <div className="flex items-center gap-1">
         {steps.map((label, i) => (
           <div key={i} className="flex items-center">
-            <div className={`px-3 py-1 rounded text-xs font-semibold
-              ${i === step
-                ? 'bg-white text-blue-900'
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={i === step
+                ? { background: '#3B82F6', color: 'white' }
                 : i < step
-                  ? 'bg-blue-400 text-white'
-                  : 'bg-blue-900 text-blue-300'}`}>
+                  ? { background: '#1E3A5F', color: '#60A5FA' }
+                  : { background: 'transparent', color: '#475569' }}>
+              <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs"
+                style={{ background: i <= step ? 'rgba(255,255,255,0.2)' : '#1E293B' }}>
+                {i < step ? '✓' : i + 1}
+              </span>
               {label}
             </div>
-            {i < 2 && <span className="text-blue-400 mx-1 text-xs">›</span>}
+            {i < 2 && (
+              <div className="w-6 h-px mx-1" style={{ background: i < step ? '#3B82F6' : '#1E293B' }} />
+            )}
           </div>
         ))}
       </div>
 
-      {/* New session */}
-      <button
-        onClick={onReset}
-        className="text-blue-200 hover:text-white text-xs underline underline-offset-2">
-        New batch
+      {/* New batch */}
+      <button onClick={onReset}
+        className="text-xs px-3 py-1.5 rounded-lg transition-colors font-medium"
+        style={{ color: '#94A3B8', border: '1px solid #1E293B' }}
+        onMouseEnter={e => { e.target.style.color = '#F1F5F9'; e.target.style.borderColor = '#334155' }}
+        onMouseLeave={e => { e.target.style.color = '#94A3B8'; e.target.style.borderColor = '#1E293B' }}>
+        ↺ New batch
       </button>
-    </div>
+    </header>
   )
 }
