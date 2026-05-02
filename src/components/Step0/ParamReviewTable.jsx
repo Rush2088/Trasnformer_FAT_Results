@@ -68,7 +68,7 @@ export default function ParamReviewTable({ detected, onConfirmed }) {
           <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mr-2">
             ⚙ MVA Ratings
           </div>
-          {[['Rated MVA', 'rated_mva', '4.6'], ['Split MVA', 'split_mva', '2.3']].map(([label, key, ph]) => (
+          {[['(HV-LV1+LV2)', 'rated_mva', '4.6'], ['(HV-LV1)', 'split_mva', '2.3']].map(([label, key, ph]) => (
             <label key={key} className="flex items-center gap-2">
               <span className="text-xs font-semibold text-slate-600 whitespace-nowrap">{label}</span>
               <input
